@@ -1,0 +1,9 @@
+Abstract: Root Cause Analysis (RCA)
+
+        => Instead of normal Bug Fixing event, we can go for RCA where participants will be provided with a list of bugs and their task will be to locate the exact issue within the code by thoroughly analyzing it. Once identified, they must propose an optimal solution to resolve the bug. 
+         
+        => The bugs will be categorized into three levels of difficulty: Easy, Medium, and Hard. Each level will have a corresponding point value based on its complexity.
+
+        => Participants can choose which bugs to tackle based on their interest. The individual or team that accumulates the highest points by providing accurate and efficient solutions will win the first prize.
+
+        => Can participate as an individual or 2-3 in a team
