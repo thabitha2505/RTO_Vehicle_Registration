@@ -96,7 +96,6 @@ exports.registerVehicle = async (req, res) => {
                 return res.status(400).json({ message: "Invalid vehicle usage type. Must be 'Private' or 'Commercial'." });
             }
 
-            const reg_no = await vehicleService.generateRegNo();
             const reg_date = req.body.reg_date ? moment(req.body.reg_date) : moment();
             const reg_exp_date = moment(reg_date).add(15, 'years');
             const fc_expiry_date = vehicle_usage_type === 'Private'
@@ -130,10 +129,9 @@ exports.registerVehicle = async (req, res) => {
                 vehicleData.vehicle_model = vehicle_model;
 
                 try {
-                    const result = await registrationVehicle(vehicleData, identityProofPath, addrProofPath, reg_no);
+                    const result = await registrationVehicle(vehicleData, identityProofPath, addrProofPath);
                     res.status(200).json({
                         message: 'Vehicle registered successfully',
-                        reg_no,
                         vehicle_id: result.vehicle_id,
                         reg_exp_date: vehicleData.reg_exp_date,
                         FC_expiry_date: vehicleData.FC_expiry_date,

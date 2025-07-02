@@ -3,6 +3,10 @@ const db=require('../config/db');
 
 exports.register=async({name,email,password,phone_no})=>{
     return new Promise((resolve,reject)=>{
+        if (!name || !phone_no || !email || !password) {
+            return res.status(400).json({ message: 'All fields are required.' });
+        }
+        
         db.query('SELECT * FROM users WHERE phone_no=?',[phone_no],async (err,results)=>{
             if(err) return reject(err);
             if(results.length>0) return reject(new Error('User already exists'));

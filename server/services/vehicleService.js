@@ -6,48 +6,48 @@ function isValidChassis(chassis_no) {
 }
 
 
-function getNextSeries(currentSeries) {
-    const [first, second] = currentSeries.toUpperCase().split('');
-    let nextFirst = first.charCodeAt(0);
-    let nextSecond = second.charCodeAt(0);
+// function getNextSeries(currentSeries) {
+//     const [first, second] = currentSeries.toUpperCase().split('');
+//     let nextFirst = first.charCodeAt(0);
+//     let nextSecond = second.charCodeAt(0);
 
-    if (nextSecond === 90) { 
-        nextSecond = 65; 
-        nextFirst++;
-    } else {
-        nextSecond++;
-    }
+//     if (nextSecond === 90) { 
+//         nextSecond = 65; 
+//         nextFirst++;
+//     } else {
+//         nextSecond++;
+//     }
 
-    if (nextFirst > 90) throw new Error("Series limit exceeded (ZZ)");
+//     if (nextFirst > 90) throw new Error("Series limit exceeded (ZZ)");
 
-    return String.fromCharCode(nextFirst) + String.fromCharCode(nextSecond);
-}
+//     return String.fromCharCode(nextFirst) + String.fromCharCode(nextSecond);
+// }
 
-async function generateRegNo() {
-    return new Promise((resolve, reject) => {
-        db.query('SELECT * FROM reg_tracker ORDER BY id DESC LIMIT 1', async (err, results) => {
-            if (err) return reject(err);
-            let { series, number } = results[0];
+// async function generateRegNo() {
+//     return new Promise((resolve, reject) => {
+//         db.query('SELECT * FROM reg_tracker ORDER BY id DESC LIMIT 1', async (err, results) => {
+//             if (err) return reject(err);
+//             let { series, number } = results[0];
 
-            number++;
-            if (number > 9999) {
-                series = getNextSeries(series);
-                number = 1;
-            }
+//             number++;
+//             if (number > 9999) {
+//                 series = getNextSeries(series);
+//                 number = 1;
+//             }
 
-            const formattedNum = String(number).padStart(4, '0');
-            const regNo = `TN37${series}${formattedNum}`;
+//             const formattedNum = String(number).padStart(4, '0');
+//             const regNo = `TN37${series}${formattedNum}`;
 
-            db.query('UPDATE reg_tracker SET series = ?, number = ?', [series, number], (err) => {
-                if (err) return reject(err);
-                resolve(regNo);
-            });
-        });
-    });
-}
+//             db.query('UPDATE reg_tracker SET series = ?, number = ?', [series, number], (err) => {
+//                 if (err) return reject(err);
+//                 resolve(regNo);
+//             });
+//         });
+//     });
+// }
 
 
-exports.registrationVehicle = async (vehicleData, identityProofPath, addrProofPath, reg_no) => {
+exports.registrationVehicle = async (vehicleData, identityProofPath, addrProofPath) => {
     return new Promise((resolve, reject) => {
         const {
             owner_id, vehicle_name, vehicle_brand, vehicle_model, vehicle_invoice,
@@ -59,7 +59,7 @@ exports.registrationVehicle = async (vehicleData, identityProofPath, addrProofPa
 
         const insertQuery = `
             INSERT INTO vehicle (
-                owner_id, reg_no, reg_date, reg_exp_date, FC_expiry_date, insurance_validity,
+                owner_id, reg_date, reg_exp_date, FC_expiry_date, insurance_validity,
                 vehicle_name, vehicle_brand, vehicle_model, vehicle_invoice,
                 chassis_no, color, engine_capacity, mileage, engine_no, fuel_type, no_of_seats, vehicle_usage_type,
                 body_type, lorry_type, container_capacity, tanker_capacity,
@@ -67,7 +67,7 @@ exports.registrationVehicle = async (vehicleData, identityProofPath, addrProofPa
                 identity_proof, addr_proof
             )
             VALUES (
-                ?, ?, ?, ?, ?,
+                ?, ?, ?, ?, 
                 ?, ?, ?, ?, ?,
                 ?, ?, ?, ?, ?, ?, ?, ?,
                 ?, ?, ?, ?,
@@ -77,7 +77,7 @@ exports.registrationVehicle = async (vehicleData, identityProofPath, addrProofPa
         `;
 
         const values = [
-            owner_id, reg_no, reg_date, reg_exp_date, FC_expiry_date, insurance_validity,
+            owner_id, reg_date, reg_exp_date, FC_expiry_date, insurance_validity,
             vehicle_name, vehicle_brand, vehicle_model, vehicle_invoice,
             chassis_no, color, engine_capacity, mileage, engine_no, fuel_type, no_of_seats, vehicle_usage_type,
             body_type || null, lorry_type || null, container_capacity || null, tanker_capacity || null,
@@ -87,7 +87,7 @@ exports.registrationVehicle = async (vehicleData, identityProofPath, addrProofPa
 
         db.query(insertQuery, values, (err, result) => {
             if (err) {
-                console.error("Insert Query Error:", err.sqlMessage);
+                console.error("Insert Query Error:", err.message);
                 return reject(err);
             }
 
@@ -113,7 +113,6 @@ exports.allVehicles = async (userId) => {
         let query = `
             SELECT 
                 u.name AS owner_name,
-                v.reg_no,
                 v.vehicle_id,
                 v.vehicle_name,
                 v.vehicle_brand,
@@ -157,5 +156,5 @@ exports.allVehicles = async (userId) => {
     });
 };
 
-exports.generateRegNo=generateRegNo;
+// exports.generateRegNo=generateRegNo;
 exports.isValidChassis=isValidChassis;
